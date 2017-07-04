@@ -25,7 +25,42 @@ fun todoTask7(client: Client?, message: String?, mailer: Mailer): Nothing = TODO
 fun sendMessageToClient(
         client: Client?, message: String?, mailer: Mailer
 ) {
-    todoTask7(client, message, mailer)
+    val send = { a: String,b: String -> mailer.sendMessage(a,b)}
+    send.liftA2(client?.personalInfo?.email, message)
+}
+
+fun sendMessageToClient1(
+        client: Client?, message: String?, mailer: Mailer
+) {
+    client?.personalInfo?.email.flatMap({ email ->
+        message.map({ mailer.sendMessage(email, it)})
+    })
+}
+
+fun sendMessageToClient2(
+        client: Client?, message: String?, mailer: Mailer
+) {
+    val email = client?.personalInfo?.email
+    if (email != null && message != null)
+    {
+        mailer.sendMessage(email, message)
+    }
+}
+
+fun <A,B,C> ((A,B)->C).curry() : (A) -> (B) -> C {
+    return { a : A -> { b : B -> this(a,b)}}
+}
+
+fun <A,B,C> ((A,B)-> C)?.liftA2(a : A?, b : B?) : C? {
+    return this.flatMap { f -> a.flatMap({ aa -> b.map({ f(aa, it )})})}
+}
+
+fun <A,B> A?.map(f : (A) -> B) : B? {
+  return this.flatMap({ f(it) })
+}
+
+fun <A,B> A?.flatMap(f : (A) -> B?) : B? {
+    return if (this == null) null else f(this)
 }
 
 class Client (val personalInfo: PersonalInfo?)
