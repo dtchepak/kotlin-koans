@@ -1,13 +1,43 @@
 package iii_conventions
 
 data class MyDate(val year: Int, val month: Int, val dayOfMonth: Int)
-
-operator fun MyDate.rangeTo(other: MyDate): DateRange = todoTask27()
+    : Comparable<MyDate> {
+    override fun compareTo(other: MyDate): Int {
+        // `when` version stolen from solutions (`resolutions` branch)
+        return when {
+            year != other.year -> year.compareTo(other.year)
+            month != other.month -> month.compareTo(other.month)
+            else -> dayOfMonth.compareTo(other.dayOfMonth)
+        }
+        // my original, awful version:
+//        fun getParts(date:MyDate) = listOf(date.year, date.month, date.dayOfMonth)
+//        val compareSections = getParts(this).zip(getParts(other)).map { it.first.compareTo(it.second)}
+//        return compareSections.firstOrNull { it != 0 } ?: 0
+    }
+}
 
 enum class TimeInterval {
     DAY,
     WEEK,
-    YEAR
+    YEAR;
 }
+data class MultipleTimeInterval(val interval : TimeInterval, val times: Int)
+operator fun TimeInterval.times(i: Int): MultipleTimeInterval = MultipleTimeInterval(this, i)
 
-class DateRange(val start: MyDate, val endInclusive: MyDate)
+operator fun DateRange.contains(d:MyDate) = this.start <= d && this.endInclusive >= d
+operator fun MyDate.rangeTo(other: MyDate): DateRange = DateRange(this, other)
+operator fun MyDate.plus(interval: TimeInterval): MyDate = this + interval.times(1)
+operator fun MyDate.plus(x: MultipleTimeInterval): MyDate = this.addTimeIntervals(x.interval, x.times)
+
+class DateRange(val start: MyDate, val endInclusive: MyDate) : Iterable<MyDate> {
+    override fun iterator(): Iterator<MyDate> =
+        object : Iterator<MyDate> {
+            var next = start
+            override fun hasNext(): Boolean = next<=endInclusive
+            override fun next(): MyDate {
+                var current = next
+                next = next.nextDay()
+                return current
+            }
+        }
+}
