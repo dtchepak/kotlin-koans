@@ -13,4 +13,13 @@ class _37_String_And_Map_Builders {
         }
         assertEquals("Map should be filled with the right values", expected, map)
     }
+
+    @Test fun testBuildMap_2() {
+        val map = task37_2()
+        val expected = HashMap<Int, String>()
+        for (i in 0..10) {
+            expected[i] = "$i"
+        }
+        assertEquals("Map should be filled with the right values", expected, map)
+    }
 }
