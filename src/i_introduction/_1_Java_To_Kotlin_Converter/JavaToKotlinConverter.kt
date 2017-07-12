@@ -17,7 +17,7 @@ fun todoTask1(collection: Collection<Int>): Nothing = TODO(
 fun task1(collection: Collection<Int>)
         = JavaCode2().task1(collection)
 
-class JavaCode2 : JavaCode() {
+class JavaCode2 {
     fun task1(collection: Collection<Int>): String {
         return "{" + collection.fold("") { acc, x -> if (acc.isEmpty()) x.toString() else acc + ", " + x } + "}"
 
